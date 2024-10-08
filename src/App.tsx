@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import Catalog from "./catalog";
 
 function App() {
   const [message, setMessage] = useState("");
@@ -16,6 +17,7 @@ function App() {
     <div>
       <h1>AdviseU Frontend</h1>
       <p>Message from backend: {message}</p>
+      <Catalog />
     </div>
   );
 }
