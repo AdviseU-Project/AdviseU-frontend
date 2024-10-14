@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Select from "react-select";
 
 interface Course {
   course_number: string;
@@ -11,8 +12,13 @@ interface Course {
 
 const Catalog: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
-  const [departments, setDepartments] = useState<string[]>([]);
-  const [selectedDepartment, setSelectedDepartment] = useState<string>("");
+  const [departments, setDepartments] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const [selectedDepartment, setSelectedDepartment] = useState<{
+    value: string;
+    label: string;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch available departments
@@ -24,7 +30,14 @@ const Catalog: React.FC = () => {
         }
         return response.json();
       })
-      .then((data) => setDepartments(data))
+      .then((data) =>
+        setDepartments(
+          data.map((dept: string) => ({
+            value: dept,
+            label: dept.toUpperCase(),
+          }))
+        )
+      )
       .catch((error) => {
         setError("Error fetching departments: " + error.message);
         console.error(error);
@@ -34,7 +47,9 @@ const Catalog: React.FC = () => {
   // Fetch courses based on selected department
   useEffect(() => {
     if (selectedDepartment) {
-      fetch(`http://localhost:8080/catalog?department=${selectedDepartment}`)
+      fetch(
+        `http://localhost:8080/catalog?department=${selectedDepartment.value}`
+      )
         .then((response) => {
           if (!response.ok) {
             throw new Error("Failed to fetch catalog.");
@@ -58,23 +73,19 @@ const Catalog: React.FC = () => {
 
       {/* Department Selection Dropdown */}
       <label htmlFor="department">Choose a department:</label>
-      <select
+      <Select
         id="department"
-        value={selectedDepartment}
-        onChange={(e) => setSelectedDepartment(e.target.value)}
-      >
-        <option value="">Select a department</option>
-        {departments.map((dept) => (
-          <option key={dept} value={dept}>
-            {dept}
-          </option>
-        ))}
-      </select>
+        options={departments} // The options are populated here
+        value={selectedDepartment} // The current selected value
+        onChange={(selectedOption) => setSelectedDepartment(selectedOption)} // Handle selection change
+        isClearable // Allow clearing the selection
+        placeholder="Select a department..." // Placeholder text
+      />
 
       {/* Display courses if a department is selected */}
       {selectedDepartment && (
         <div>
-          <h2>Courses in {selectedDepartment} Department</h2>
+          <h2>Courses in {selectedDepartment.label} Department</h2>
           <ul>
             {courses.map((course) => (
               <li key={course.course_number}>
