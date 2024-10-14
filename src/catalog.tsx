@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 interface Course {
   course_number: string;
   course_name: string;
-  credits: number;
+  credits: string;
   description: string;
   prerequisites: string;
   corequisites: string;
