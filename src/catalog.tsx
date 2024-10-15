@@ -6,9 +6,25 @@ interface Course {
   course_name: string;
   credits: string;
   description: string;
-  prerequisites: string;
-  corequisites: string;
+  prerequisites: string[][];
+  corequisites: string[][];
 }
+
+// Helper function to format prerequisites/corequisites
+const formatRequisites = (requisites: string[][]) => {
+  return requisites.map((group, index) => {
+    const groupText = group.join(" or ");
+
+    // If there are multiple groups, add parentheses around each group for "and"
+    const formattedGroup = requisites.length > 1 ? `(${groupText})` : groupText;
+
+    return (
+      <span key={index}>
+        {formattedGroup} {index < requisites.length - 1 && " and "}
+      </span>
+    );
+  });
+};
 
 const Catalog: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -94,8 +110,18 @@ const Catalog: React.FC = () => {
                 </h3>
                 <p>Credits: {course.credits}</p>
                 <p>{course.description}</p>
-                <p>Prerequisites: {course.prerequisites}</p>
-                <p>Corequisites: {course.corequisites}</p>
+                <p>
+                  <strong>Prerequisites: </strong>
+                  {course.prerequisites.length > 0
+                    ? formatRequisites(course.prerequisites)
+                    : "None"}
+                </p>
+                <p>
+                  <strong>Corequisites: </strong>
+                  {course.corequisites.length > 0
+                    ? formatRequisites(course.corequisites)
+                    : "None"}
+                </p>
               </li>
             ))}
           </ul>
